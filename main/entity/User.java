@@ -16,6 +16,40 @@ public class User {
 	}
 	
 	/**
+	 * @param nickname
+	 * @param email
+	 * @param name
+	 * @param firstname
+	 * @param city
+	 * @param password
+	 */
+	public User(String nickname, String email, String name, String firstname, String city,
+			String password) {
+		this.nickname = nickname;
+		this.email = email;
+		this.name = name;
+		this.firstname = firstname;
+		this.city = city;
+		this.password = password;
+	}
+	
+	/**
+	 * @param nickname
+	 * @param email
+	 * @param name
+	 * @param firstname
+	 * @param city
+	 * @param password
+	 */
+	public User(String nickname, String email, String name, String firstname, String city) {
+		this.nickname = nickname;
+		this.email = email;
+		this.name = name;
+		this.firstname = firstname;
+		this.city = city;
+	}
+	
+	/**
 	 * @param idUser
 	 * @param nickname
 	 * @param email
@@ -26,7 +60,6 @@ public class User {
 	 */
 	public User(int idUser, String nickname, String email, String name, String firstname, String city,
 			String password) {
-		super();
 		this.idUser = idUser;
 		this.nickname = nickname;
 		this.email = email;
@@ -122,6 +155,12 @@ public class User {
 	 */
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
+	}
+
+	@Override
+	public String toString() {
+		return "User [idUser=" + idUser + ", nickname=" + nickname + ", email=" + email + ", name=" + name
+				+ ", firstname=" + firstname + ", city=" + city + ", password=" + password + "]";
 	}
 	
 }

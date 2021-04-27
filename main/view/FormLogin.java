@@ -1,14 +1,14 @@
 package view;
+
 import java.awt.Color;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
-import controller.FormValidation;
-import entity.User;
+import controller.Login;
+import controller.LoginImpl;
 import main.Main;
-import model.QueryUser;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.BorderFactory;
@@ -19,7 +19,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import tool.BCrypt;
 import tool.ImagePanel;
 
 import javax.swing.JTextPane;
@@ -30,18 +29,14 @@ public class FormLogin extends JFrame {
 
 	private static JTextField tf_username;
 	private static JTextPane txtpn_error_login;
-	private static User userConnected;
-	private static boolean isConnected;
 	private static Font fontTextField = new Font("Montserrat", Font.PLAIN, 12);
 	private static JPasswordField pf_password;
-	private static App nestiApp;
-	
-	private static Border lineborderRed = BorderFactory.createLineBorder(Color.red, 1);
 	private static Border lineborderWhite = BorderFactory.createLineBorder(Color.white, 1);
-	private ImagePanel pl_logo;
-	private JPanel pl_title_login, pl_br, pl_login;
-	private JLabel lbl_subscribe, lbl_always_subscribe, lbl_usename, lbl_password;
-	private JButton btn_login, btn_cancel, btn_create_account;
+	private static Border lineborderRed = BorderFactory.createLineBorder(Color.red, 1);
+	private static ImagePanel pl_logo;
+	private static JPanel pl_title_login, pl_br, pl_login;
+	private static JLabel lbl_subscribe, lbl_always_subscribe, lbl_usename, lbl_password;
+	private static JButton btn_login, btn_cancel, btn_create_account;
 
 	public FormLogin() {
 		initialize();
@@ -63,18 +58,18 @@ public class FormLogin extends JFrame {
 		pl_login.setBounds(0, 0, 619, 354);
 		pl_login.setLayout(null);
 		getContentPane().add(pl_login);
-		
+
 		pl_logo = new ImagePanel(new ImageIcon(getClass().getResource("/img/logo.png")).getImage());
 		pl_logo.setBounds(159, 11, 85, 85);
 		pl_logo.setLayout(null);
 		pl_login.add(pl_logo);
-		
+
 		pl_title_login = new JPanel();
 		pl_title_login.setBounds(0, 24, 619, 48);
 		pl_title_login.setBackground(new Color(191, 163, 124));
 		pl_title_login.setLayout(null);
 		pl_login.add(pl_title_login);
-		
+
 		pl_br = new JPanel();
 		pl_br.setBorder(new CompoundBorder());
 		pl_br.setBounds(44, 291, 535, 1);
@@ -112,8 +107,7 @@ public class FormLogin extends JFrame {
 		tf_username.setColumns(10);
 		tf_username.setBackground(new Color(67, 46, 46));
 		tf_username.setForeground(Color.WHITE);
-		tf_username.setBorder(BorderFactory.createCompoundBorder(tf_username.getBorder(),
-				BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+		setBorderTf(lineborderWhite);
 		tf_username.setFont(fontTextField);
 		tf_username.setCaretColor(Color.WHITE);
 		tf_username.requestFocus();
@@ -154,8 +148,7 @@ public class FormLogin extends JFrame {
 		txtpn_error_login.setBounds(159, 205, 385, 32);
 		txtpn_error_login.setBackground(new Color(67, 46, 46));
 		txtpn_error_login.setForeground(Color.WHITE);
-		txtpn_error_login.setBorder(BorderFactory.createCompoundBorder(txtpn_error_login.getBorder(),
-				BorderFactory.createEmptyBorder(3, 3, 3, 3)));
+		setPaddingTp();
 		txtpn_error_login.setVisible(false);
 		pl_login.add(txtpn_error_login);
 
@@ -163,8 +156,7 @@ public class FormLogin extends JFrame {
 		pf_password.setBounds(159, 170, 385, 30);
 		pf_password.setBackground(new Color(67, 46, 46));
 		pf_password.setForeground(Color.WHITE);
-		pf_password.setBorder(BorderFactory.createCompoundBorder(pf_password.getBorder(),
-				BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+		setBorderPf(lineborderWhite);
 		pf_password.setFont(fontTextField);
 		pf_password.setCaretColor(Color.WHITE);
 		pf_password.requestFocus();
@@ -173,41 +165,21 @@ public class FormLogin extends JFrame {
 		// ---- JButton Event
 
 		btn_cancel.addActionListener(new ActionListener() {
-
 			public void actionPerformed(ActionEvent e) {
-
-				txtpn_error_login.setVisible(false);
-				// Reset Value
-				tf_username.setText("");
-				pf_password.setText("");
-				
-				tf_username.setBorder(lineborderWhite);
-				tf_username.setBorder(BorderFactory.createCompoundBorder(tf_username.getBorder(),
-						BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-				pf_password.setBorder(lineborderWhite);
-				pf_password.setBorder(BorderFactory.createCompoundBorder(pf_password.getBorder(),
-						BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-				
+				resetErrorsFields();
 			}
 		});
 
 		btn_create_account.addActionListener(new ActionListener() {
-
 			public void actionPerformed(ActionEvent e) {
-
-				// Reset Value
-				tf_username.setText("");
-				pf_password.setText("");
-				
+				resetErrorsFields();
 				Main.getFormLogin().setVisible(false);
 				Main.getFormSubscribe().setVisible(true);
 				Main.getFormSubscribe().setLocationRelativeTo(null);
-				txtpn_error_login.setVisible(false);
 			}
 		});
 
 		btn_login.addActionListener(new ActionListener() {
-
 			public void actionPerformed(ActionEvent e) {
 				connectUser();
 			}
@@ -236,111 +208,144 @@ public class FormLogin extends JFrame {
 				}
 			}
 		};
-		
+
 		addKeyListener(listener);
 		tf_username.addKeyListener(listener);
 		pf_password.addKeyListener(listener);
-		
+
 	}
-	
-	
+
 	/**
 	 * Connect the user if the username and password are valid
 	 */
 	public static void connectUser() {
-		User userFind = null;
-		String password = String.valueOf(pf_password.getPassword());
-
-		// The fields are filled
-		if (!tf_username.getText().equals("") & !password.equals("")) {
-			// tf_username is an email
-			if (FormValidation.checkValidEmail(tf_username.getText())) {
-				userFind = QueryUser.findOneByEmail(tf_username.getText());
-			} 
-			// tf_username is an nickname
-			else {
-				userFind = QueryUser.findOneByNickname(tf_username.getText());
-			}
-			// An User exist with this email or nickname
-			if (userFind.getNickname() != null & !password.equals("")) {
-				// Checks if the password matches
-				Boolean correctPassword = BCrypt.checkpw(password, userFind.getPassword());
-				// if the password matches
-				if (correctPassword) {
-					setConnected(true);
-					setUserConnected(userFind);
-					txtpn_error_login.setVisible(false);
-					Main.getFormLogin().setVisible(false);
-					nestiApp = new App();
-					nestiApp.setVisible(true);
-				
-				} 
-				// if the password does not match
-				else {
-					txtpn_error_login.setVisible(true);
-					pf_password.setBorder(lineborderRed);
-					pf_password.setBorder(BorderFactory.createCompoundBorder(pf_password.getBorder(),
-							BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-					txtpn_error_login.setText("Mot de passe incorrect.");
+		Login login = new LoginImpl();
+		
+		if (login.fieldsNotEmpty()) {
+			if (login.findUser() != null) {
+				if (login.checkPasswordwithUsername()) {
+					displayConnectUser();
+				} else {
+					displayErrorWrongPswd();
 				}
-				
-			} 
-			// No User exist
-			else {
-				txtpn_error_login.setVisible(true);
-				
-				pf_password.setBorder(lineborderRed);
-				pf_password.setBorder(BorderFactory.createCompoundBorder(pf_password.getBorder(),
-						BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-				tf_username.setBorder(lineborderRed);
-				tf_username.setBorder(BorderFactory.createCompoundBorder(tf_username.getBorder(),
-						BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-				
-				txtpn_error_login.setText("Aucun compte ne correspond à votre nom d'utilisateur ou votre email.");
+			} else {
+				displayErrorNoUserFind();
 			}
-		// The fields are not filled
 		} else {
-			txtpn_error_login.setVisible(true);
-			pf_password.setBorder(lineborderRed);
-			pf_password.setBorder(BorderFactory.createCompoundBorder(pf_password.getBorder(),
-					BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-			tf_username.setBorder(lineborderRed);
-			tf_username.setBorder(BorderFactory.createCompoundBorder(tf_username.getBorder(),
-					BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-			txtpn_error_login.setText("Veuillez saisir votre nom d'utilisateur ou email et votre mot de passe.");
+			if (login.fieldUsernameNotEmpty()) {
+				if (login.findUser() != null) {
+					displayErrorPswdEmpty();
+				} else {
+					displayErrorEmptyFields();
+				}
+			} else {
+				displayErrorEmptyFields();
+			}
 		}
 	}
-	
-	// Getters & Setters
+
+	public static void displayErrorEmptyFields() {
+		txtpn_error_login.setVisible(true);
+		setBorderPf(lineborderRed);
+		setBorderTf(lineborderRed);
+		txtpn_error_login.setText("Veuillez saisir votre nom d'utilisateur ou email et votre mot de passe.");
+	}
+
+	public static void displayErrorNoUserFind() {
+		txtpn_error_login.setVisible(true);
+		setBorderPf(lineborderRed);
+		setBorderTf(lineborderRed);
+		txtpn_error_login.setText("Aucun compte trouvé avec ce compte utilisateur.");
+	}
+
+	public static void displayErrorWrongPswd() {
+		txtpn_error_login.setVisible(true);
+		setBorderPf(lineborderRed);
+		txtpn_error_login.setText("Mot de passe incorrect.");
+	}
+
+	public static void displayErrorPswdEmpty() {
+		txtpn_error_login.setVisible(true);
+		setBorderPf(lineborderRed);
+		setBorderTf(lineborderWhite);
+		txtpn_error_login.setText("Veuillez saisir votre mot de passe.");
+	}
+
+	public static void setBorderPf(Border border) {
+		pf_password.setBorder(border);
+		pf_password.setBorder(BorderFactory.createCompoundBorder(pf_password.getBorder(),
+				BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+	}
+
+	public static void setBorderTf(Border border) {
+		tf_username.setBorder(border);
+		tf_username.setBorder(BorderFactory.createCompoundBorder(tf_username.getBorder(),
+				BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+	}
+
+	public static void setPaddingTp() {
+		txtpn_error_login.setBorder(BorderFactory.createCompoundBorder(txtpn_error_login.getBorder(),
+				BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+	}
+
+	public static void displayConnectUser() {
+		Login login = new LoginImpl();
+		getTxtpn_error_login().setVisible(false);
+		Main.getFormLogin().setVisible(false);
+		App nestiApp = new App();
+		nestiApp.setVisible(true);
+		App.setUserConnected(login.findUser());
+	}
+
+	public static void resetErrorsFields() {
+		txtpn_error_login.setVisible(false);
+		tf_username.setText("");
+		pf_password.setText("");
+		setBorderTf(lineborderWhite);
+		setBorderPf(lineborderWhite);
+	}
+
 
 	/**
-	 * @return the userConnected
+	 * @return the pf_password
 	 */
-	public static User getUserConnected() {
-		return userConnected;
+	public static JPasswordField getPf_password() {
+		return FormLogin.pf_password;
 	}
 
 	/**
-	 * @param userConnected the userConnected to set
+	 * @param pf_password the pf_password to set
 	 */
-	public static void setUserConnected(User userConnected) {
-		FormLogin.userConnected = userConnected;
+	public void setPf_password(JPasswordField pf_password) {
+		FormLogin.pf_password = pf_password;
 	}
 
 	/**
-	 * @return the isConnected
+	 * @return the tf_username
 	 */
-	public static boolean isConnected() {
-		return isConnected;
+	public static JTextField getTf_username() {
+		return FormLogin.tf_username;
 	}
 
 	/**
-	 * @param isConnected the isConnected to set
+	 * @param tf_username the tf_username to set
 	 */
-	public static void setConnected(boolean isConnected) {
-		FormLogin.isConnected = isConnected;
+	public void setTf_username(JTextField tf_username) {
+		FormLogin.tf_username = tf_username;
 	}
 
+	/**
+	 * @return the txtpn_error_login
+	 */
+	public static JTextPane getTxtpn_error_login() {
+		return txtpn_error_login;
+	}
 
+	/**
+	 * @param txtpn_error_login the txtpn_error_login to set
+	 */
+	public void setTxtpn_error_login(JTextPane txtpn_error_login) {
+		FormLogin.txtpn_error_login = txtpn_error_login;
+	}
 
 }

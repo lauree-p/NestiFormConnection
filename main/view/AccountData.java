@@ -6,16 +6,19 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import controller.Login;
+import controller.LoginImpl;
+
 @SuppressWarnings("serial")
 public class AccountData extends JPanel {
 
 	JPanel panel_hr_1, panel_hr_2;
 	private JLabel lbl_my_account, lbl_info, lbl_nickname, lbl_email, lbl_name, lbl_firstname, lbl_city;
 	private static JLabel lbl_user_nickname;
-	private JLabel lbl_user_email;
-	private JLabel lbl_user_name;
-	private JLabel lbl_user_firstname;
-	private JLabel lbl_user_city;
+	private static JLabel lbl_user_email;
+	private static JLabel lbl_user_name;
+	private static JLabel lbl_user_firstname;
+	private static JLabel lbl_user_city;
 	JButton btn_update;
 
 	/**
@@ -33,7 +36,7 @@ public class AccountData extends JPanel {
 	 * Initialize the contents of the panel.
 	 */
 	public void initialize() {
-
+		Login login = new LoginImpl();
 		lbl_my_account = new JLabel("MON COMPTE");
 		lbl_my_account.setForeground(Color.WHITE);
 		lbl_my_account.setFont(new Font("Montserrat", Font.BOLD, 28));
@@ -80,31 +83,31 @@ public class AccountData extends JPanel {
 		lbl_city.setBounds(59, 394, 137, 14);
 		add(lbl_city);
 
-		lbl_user_nickname = new JLabel(FormLogin.getUserConnected().getNickname());
+		lbl_user_nickname = new JLabel(login.findUser().getNickname());
 		lbl_user_nickname.setForeground(Color.WHITE);
 		lbl_user_nickname.setFont(new Font("Montserrat", Font.PLAIN, 12));
 		lbl_user_nickname.setBounds(206, 249, 218, 14);
 		add(lbl_user_nickname);
 
-		lbl_user_email = new JLabel(FormLogin.getUserConnected().getEmail());
+		lbl_user_email = new JLabel(login.findUser().getEmail());
 		lbl_user_email.setForeground(Color.WHITE);
 		lbl_user_email.setFont(new Font("Montserrat", Font.PLAIN, 12));
 		lbl_user_email.setBounds(206, 284, 218, 14);
 		add(lbl_user_email);
 
-		lbl_user_name = new JLabel(FormLogin.getUserConnected().getName());
+		lbl_user_name = new JLabel(login.findUser().getName());
 		lbl_user_name.setForeground(Color.WHITE);
 		lbl_user_name.setFont(new Font("Montserrat", Font.PLAIN, 12));
 		lbl_user_name.setBounds(206, 322, 218, 14);
 		add(lbl_user_name);
 
-		lbl_user_firstname = new JLabel(FormLogin.getUserConnected().getFirstname());
+		lbl_user_firstname = new JLabel(login.findUser().getFirstname());
 		lbl_user_firstname.setForeground(Color.WHITE);
 		lbl_user_firstname.setFont(new Font("Montserrat", Font.PLAIN, 12));
 		lbl_user_firstname.setBounds(206, 360, 218, 14);
 		add(lbl_user_firstname);
 
-		lbl_user_city = new JLabel(FormLogin.getUserConnected().getCity());
+		lbl_user_city = new JLabel(login.findUser().getCity());
 		lbl_user_city.setForeground(Color.WHITE);
 		lbl_user_city.setFont(new Font("Montserrat", Font.PLAIN, 12));
 		lbl_user_city.setBounds(206, 395, 218, 14);
@@ -131,7 +134,7 @@ public class AccountData extends JPanel {
 	/**
 	 * @return the lbl_user_email
 	 */
-	public JLabel getLbl_user_email() {
+	public static JLabel getLbl_user_email() {
 		return lbl_user_email;
 	}
 
@@ -139,13 +142,13 @@ public class AccountData extends JPanel {
 	 * @param lbl_user_email the lbl_user_email to set
 	 */
 	public void setLbl_user_email(JLabel lbl_user_email) {
-		this.lbl_user_email = lbl_user_email;
+		AccountData.lbl_user_email = lbl_user_email;
 	}
 
 	/**
 	 * @return the lbl_user_name
 	 */
-	public JLabel getLbl_user_name() {
+	public static JLabel getLbl_user_name() {
 		return lbl_user_name;
 	}
 
@@ -153,13 +156,13 @@ public class AccountData extends JPanel {
 	 * @param lbl_user_name the lbl_user_name to set
 	 */
 	public void setLbl_user_name(JLabel lbl_user_name) {
-		this.lbl_user_name = lbl_user_name;
+		AccountData.lbl_user_name = lbl_user_name;
 	}
 
 	/**
 	 * @return the lbl_user_firstname
 	 */
-	public JLabel getLbl_user_firstname() {
+	public static JLabel getLbl_user_firstname() {
 		return lbl_user_firstname;
 	}
 
@@ -167,13 +170,13 @@ public class AccountData extends JPanel {
 	 * @param lbl_user_firstname the lbl_user_firstname to set
 	 */
 	public void setLbl_user_firstname(JLabel lbl_user_firstname) {
-		this.lbl_user_firstname = lbl_user_firstname;
+		AccountData.lbl_user_firstname = lbl_user_firstname;
 	}
 
 	/**
 	 * @return the lbl_user_city
 	 */
-	public JLabel getLbl_user_city() {
+	public static JLabel getLbl_user_city() {
 		return lbl_user_city;
 	}
 
@@ -181,6 +184,7 @@ public class AccountData extends JPanel {
 	 * @param lbl_user_city the lbl_user_city to set
 	 */
 	public void setLbl_user_city(JLabel lbl_user_city) {
-		this.lbl_user_city = lbl_user_city;
+		AccountData.lbl_user_city = lbl_user_city;
 	}
+
 }

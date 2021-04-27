@@ -2,6 +2,7 @@ package view;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -11,15 +12,16 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 
 import controller.FormValidation;
+import controller.FormValidationImpl;
+import controller.Registration;
+import controller.RegistrationImpl;
 import main.Main;
-import model.QueryUser;
 import tool.BCrypt;
 import tool.ImagePanel;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
 import java.awt.event.ActionEvent;
 import javax.swing.SwingConstants;
 import java.awt.Font;
@@ -50,7 +52,9 @@ public class FormRegistration extends JFrame {
 	private static Border lineborderWhite = BorderFactory.createLineBorder(Color.white, 1);
 	private static Font fontTextField = new Font("Montserrat", Font.PLAIN, 12);
 	private static JTextField tf_nickname, tf_email, tf_name, tf_firstname, tf_city;
-
+	static FormValidation formValidation;
+	Registration registration;
+	
 	/**
 	 * Create the frame.
 	 */
@@ -269,19 +273,19 @@ public class FormRegistration extends JFrame {
 		tp_error_nickname = new JLabel();
 		tp_error_nickname.setFont(new Font("Montserrat", Font.PLAIN, 10));
 		tp_error_nickname.setText("Caractére spéciaux non autorisés. De 3 à 20 caratères.");
-		tp_error_nickname.setBounds(159, 150, 385, 20);
+		tp_error_nickname.setBounds(159, 152, 385, 20);
 		tp_error_nickname.setBackground(new Color(67, 46, 46));
 		tp_error_nickname.setForeground(Color.WHITE);
 		tp_error_nickname.setBorder(BorderFactory.createCompoundBorder(tp_error_nickname.getBorder(),
 				BorderFactory.createEmptyBorder(3, 3, 3, 3)));
 		tp_error_nickname.setVisible(false);
-		//tp_error_nickname.setEditable(false);
+		// tp_error_nickname.setEditable(false);
 		pl_subscribe.add(tp_error_nickname);
 
 		tp_error_email = new JLabel();
 		tp_error_email.setText("Adresse-email déjà utilisé.");
 		tp_error_email.setFont(new Font("Montserrat", Font.PLAIN, 10));
-		tp_error_email.setBounds(159, 205, 385, 20);
+		tp_error_email.setBounds(159, 207, 385, 20);
 		tp_error_email.setBackground(new Color(67, 46, 46));
 		tp_error_email.setForeground(Color.WHITE);
 		tp_error_email.setBorder(BorderFactory.createCompoundBorder(tp_error_email.getBorder(),
@@ -292,7 +296,7 @@ public class FormRegistration extends JFrame {
 		tp_error_confirmPsw = new JLabel();
 		tp_error_confirmPsw.setText("La confirmation de votre mot de passe n'est pas valide.");
 		tp_error_confirmPsw.setFont(new Font("Montserrat", Font.PLAIN, 10));
-		tp_error_confirmPsw.setBounds(159, 480, 385, 20);
+		tp_error_confirmPsw.setBounds(161, 482, 385, 20);
 		tp_error_confirmPsw.setBackground(new Color(67, 46, 46));
 		tp_error_confirmPsw.setForeground(Color.WHITE);
 		tp_error_confirmPsw.setBorder(BorderFactory.createCompoundBorder(tp_error_confirmPsw.getBorder(),
@@ -318,11 +322,11 @@ public class FormRegistration extends JFrame {
 		tp_error_password = new JLabel();
 		tp_error_password.setFont(new Font("Montserrat", Font.PLAIN, 10));
 		tp_error_password.setText("Votre mot de passe n'est pas assez fort.");
-		tp_error_password.setBounds(159, 422, 385, 20);
+		tp_error_password.setBounds(156, 427, 385, 20);
 		tp_error_password.setBackground(new Color(67, 46, 46));
 		tp_error_password.setForeground(Color.WHITE);
 		tp_error_password.setBorder(BorderFactory.createCompoundBorder(tp_error_confirmPsw.getBorder(),
-				BorderFactory.createEmptyBorder(3, 3, 3, 3)));
+				BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 		tp_error_password.setVisible(false);
 		pl_subscribe.add(tp_error_password);
 
@@ -330,18 +334,23 @@ public class FormRegistration extends JFrame {
 		btn_createAccount.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				Boolean[] check = FormValidation.checkFormSubscribe(tf_nickname.getText(), tf_email.getText(),
-						String.valueOf(tf_password.getPassword()), String.valueOf(tf_confirmPsw.getPassword()));
-				Boolean formvalid = turnOnError(check);
-				if (formvalid) {
-					System.out.println(cryptPswd(String.valueOf(tf_password.getPassword())));
-					QueryUser query = new QueryUser();
-					query.createUser(tf_nickname.getText(), tf_email.getText(), tf_name.getText(),
-							tf_firstname.getText(), tf_city.getText(),
-							cryptPswd(String.valueOf(tf_password.getPassword())));
+				registration = new RegistrationImpl();
+				formValidation = new FormValidationImpl();
+				if (registration.registrationValidation()) {
+					registration.createAccount();
+					JButton btnNewButton = new JButton("OK");
+					JOptionPane.showMessageDialog(btnNewButton, "Votre compte à bien était crée !");
 					Main.getFormSubscribe().setVisible(false);
 					Main.getFormLogin().setVisible(true);
+				} else {
+					String nickname = tf_nickname.getText();
+					String email = tf_email.getText();
+					String password = String.valueOf(tf_password.getPassword());
+					String passwordConfirm = String.valueOf(tf_confirmPsw.getPassword());
+					boolean[] checkFormRegistration = formValidation.checkFormRegistration(nickname, email, password, passwordConfirm);
+					displayErrors(checkFormRegistration);
 				}
+
 			}
 		});
 
@@ -362,93 +371,89 @@ public class FormRegistration extends JFrame {
 				resetFields();
 			}
 		});
-
 	}
 
 	/**
 	 * 
 	 * @param textFields
+	 * @return 
 	 * @return
 	 */
-	public static Boolean turnOnError(Boolean[] textFields) {
-		
+	public static void displayErrors(boolean[] textFields) {
+		formValidation = new FormValidationImpl();
 		setBoundsIfNoErrors();
-		
+
 		// checkNickname
 		if (textFields[0] & textFields[1]) {
 			tp_error_nickname.setVisible(false);
-			setBorderColorAndPadding(tf_nickname,lineborderWhite);
-		} else {			
+			setBorderColorAndPadding(tf_nickname, lineborderWhite);
+		} else {
 			tp_error_nickname.setVisible(true);
-			setBorderColorAndPadding(tf_nickname,lineborderRed);
+			setBorderColorAndPadding(tf_nickname, lineborderRed);
 			if (!textFields[0]) {
-				tp_error_nickname.setText("Caractére spéciaux non autorisés. De 3 à 20 caratères.");
-			} 
+				tp_error_nickname.setText("Caractères spéciaux non autorisés. De 3 à 20 caractères.");
+			}
 			if (!textFields[1]) {
-				tp_error_nickname.setText("Champ obligatoire. Saissisez votre nom d'utilisateur.");
+				tp_error_nickname.setText("Champ obligatoire. Saisissez votre nom d'utilisateur.");
 			}
 		}
-		
+
 		// checkEmail
 		if (textFields[2] & textFields[3] & textFields[4]) {
 			tp_error_email.setVisible(false);
-			setBorderColorAndPadding(tf_email,lineborderWhite);
+			setBorderColorAndPadding(tf_email, lineborderWhite);
 		} else {
 			tp_error_email.setVisible(true);
-			setBorderColorAndPadding(tf_email,lineborderRed);
+			setBorderColorAndPadding(tf_email, lineborderRed);
 			if (!textFields[2]) {
-				tp_error_email.setText("Cet email n'est pas valide.");
-			} 
+				tp_error_email.setText("Cet adresse e-mail n'est pas valide.");
+			}
 			if (!textFields[3]) {
-				tp_error_email.setText("Champ obligatoire. Saissisez votre email.");
-			} 
+				tp_error_email.setText("Champ obligatoire. Saisissez votre adresse e-mail.");
+			}
 			if (!textFields[4]) {
-				tp_error_email.setText("Un compte utilisateur existe déjà avec cette adresse email.");
+				tp_error_email.setText("Adresse e-mail déjà utilisée.");
 			}
 		}
-		
+
 		// checkPassword
 		if (textFields[5] & textFields[6]) {
 			tp_error_validPassword.setVisible(false);
 			tp_error_password.setVisible(false);
-			setBorderColorAndPadding(tf_password,lineborderWhite);
+			setBorderColorAndPadding(tf_password, lineborderWhite);
 		} else {
 			tp_error_validPassword.setVisible(true);
 			tp_error_password.setVisible(true);
-			setBorderColorAndPadding(tf_password,lineborderRed);
+			setBorderColorAndPadding(tf_password, lineborderRed);
 			if (!textFields[5]) {
 				tp_error_password.setText("Votre mot de passe n'est pas assez fort.");
 				setBoundsIfPasswordErrors();
-			} 
+			}
 			if (!textFields[6]) {
-				tp_error_password.setText("Champ obligatoire. Saissisez votre mot de passe.");
+				tp_error_password.setText("Champ obligatoire. Saisissez votre mot de passe.");
 			}
 		}
 
 		// checkPasswordConfirm
 		if (textFields[7] & textFields[8]) {
 			tp_error_confirmPsw.setVisible(false);
-			setBorderColorAndPadding(tf_confirmPsw,lineborderWhite);
+			setBorderColorAndPadding(tf_confirmPsw, lineborderWhite);
 		} else {
 			tp_error_confirmPsw.setVisible(true);
-			setBorderColorAndPadding(tf_confirmPsw,lineborderRed);
+			setBorderColorAndPadding(tf_confirmPsw, lineborderRed);
 			if (!textFields[7]) {
 				tp_error_confirmPsw.setText("La confirmation de votre mot de passe n'est pas valide.");
-			} 
+			}
 			if (!textFields[8]) {
 				tp_error_confirmPsw.setText("Champ obligatoire. Confirmez votre mot de passe.");
 			}
 		}
-		
-		// If all valid
-		boolean containFalse = Arrays.asList(textFields).contains(false);
-		Boolean formvalid = containFalse ? false : true ;
 
-		return formvalid;
 	}
 
 	/**
 	 * Encrypts the password
+	 * 
 	 * @param String password
 	 * @return the password encrypted (String)
 	 */
@@ -468,7 +473,7 @@ public class FormRegistration extends JFrame {
 		lbl_alreadyRegistered.setBounds(43, 690, 108, 30);
 		btn_login.setBounds(159, 690, 180, 30);
 	}
-	
+
 	/**
 	 * Changes the position of the elements for the display of the password error
 	 */
@@ -479,16 +484,16 @@ public class FormRegistration extends JFrame {
 		lbl_alreadyRegistered.setBounds(43, 565, 108, 30);
 		btn_login.setBounds(159, 565, 180, 30);
 	}
-	
+
 	/**
 	 * 
 	 */
 	public static void setBorderColorAndPadding(JTextField jTexField, Border border) {
 		jTexField.setBorder(border);
-		jTexField.setBorder(BorderFactory.createCompoundBorder(jTexField.getBorder(),
-				BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+		jTexField.setBorder(
+				BorderFactory.createCompoundBorder(jTexField.getBorder(), BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -505,10 +510,108 @@ public class FormRegistration extends JFrame {
 		tp_error_validPassword.setVisible(false);
 		tp_error_confirmPsw.setVisible(false);
 		tp_error_password.setVisible(false);
-		setBorderColorAndPadding(tf_nickname,lineborderWhite);
-		setBorderColorAndPadding(tf_email,lineborderWhite);
-		setBorderColorAndPadding(tf_password,lineborderWhite);
-		setBorderColorAndPadding(tf_confirmPsw,lineborderWhite);
+		setBorderColorAndPadding(tf_nickname, lineborderWhite);
+		setBorderColorAndPadding(tf_email, lineborderWhite);
+		setBorderColorAndPadding(tf_password, lineborderWhite);
+		setBorderColorAndPadding(tf_confirmPsw, lineborderWhite);
+	}
+
+	/**
+	 * @return the tf_password
+	 */
+	public static JPasswordField getTf_password() {
+		return tf_password;
+	}
+
+	/**
+	 * @param tf_password the tf_password to set
+	 */
+	public static void setTf_password(JPasswordField tf_password) {
+		FormRegistration.tf_password = tf_password;
+	}
+
+	/**
+	 * @return the tf_confirmPsw
+	 */
+	public static JPasswordField getTf_confirmPsw() {
+		return tf_confirmPsw;
+	}
+
+	/**
+	 * @param tf_confirmPsw the tf_confirmPsw to set
+	 */
+	public static void setTf_confirmPsw(JPasswordField tf_confirmPsw) {
+		FormRegistration.tf_confirmPsw = tf_confirmPsw;
+	}
+
+	/**
+	 * @return the tf_nickname
+	 */
+	public static JTextField getTf_nickname() {
+		return tf_nickname;
+	}
+
+	/**
+	 * @param tf_nickname the tf_nickname to set
+	 */
+	public static void setTf_nickname(JTextField tf_nickname) {
+		FormRegistration.tf_nickname = tf_nickname;
+	}
+
+	/**
+	 * @return the tf_email
+	 */
+	public static JTextField getTf_email() {
+		return tf_email;
+	}
+
+	/**
+	 * @param tf_email the tf_email to set
+	 */
+	public static void setTf_email(JTextField tf_email) {
+		FormRegistration.tf_email = tf_email;
+	}
+
+	/**
+	 * @return the tf_name
+	 */
+	public static JTextField getTf_name() {
+		return tf_name;
+	}
+
+	/**
+	 * @param tf_name the tf_name to set
+	 */
+	public static void setTf_name(JTextField tf_name) {
+		FormRegistration.tf_name = tf_name;
+	}
+
+	/**
+	 * @return the tf_firstname
+	 */
+	public static JTextField getTf_firstname() {
+		return tf_firstname;
+	}
+
+	/**
+	 * @param tf_firstname the tf_firstname to set
+	 */
+	public static void setTf_firstname(JTextField tf_firstname) {
+		FormRegistration.tf_firstname = tf_firstname;
+	}
+
+	/**
+	 * @return the tf_city
+	 */
+	public static JTextField getTf_city() {
+		return tf_city;
+	}
+
+	/**
+	 * @param tf_city the tf_city to set
+	 */
+	public static void setTf_city(JTextField tf_city) {
+		FormRegistration.tf_city = tf_city;
 	}
 
 }

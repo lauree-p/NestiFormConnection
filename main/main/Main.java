@@ -1,7 +1,7 @@
 package main;
 import java.awt.EventQueue;
 
-import controller.Connexion;
+import model.Connexion;
 import view.FormLogin;
 import view.FormRegistration;
 
@@ -10,13 +10,10 @@ public class Main {
 	private static FormLogin formLogin;
 	private static FormRegistration formSubscribe;
 
-	
 	public static void main(String[] args) {
 		
 		// Connection to the Database
 		Connexion.openConnection();
-		//Connexion.testConnection();
-		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {

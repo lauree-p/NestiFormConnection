@@ -1,4 +1,4 @@
-package controller;
+package model;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -9,30 +9,28 @@ import java.util.logging.Logger;
 import tool.Config;
 
 public class Connexion {
-	public static Connection accessDataBase = null;
+
+	static Connection accessDataBase = null;
 
 	/**
-	 * Testons la connexion
-	 * 
-	 * @param args
+	 * Open connection with the data base
 	 */
-
 	public static void openConnection() {
-		/* Parametres de connexion */
-
-		String url = Config.getUrlbsd();
-		// nesti = nom de ma bdd
-		String utilisateur = Config.getUsername();
-		String motDePasse = Config.getPassword();
+		// Parameters connection
+		String urlBsd = Config.getUrlbsd();
+		String userBsd = Config.getUsername();
+		String passwordBsd = Config.getPassword();
 		try {
-			// on ajoute nos param�tres
-			accessDataBase = DriverManager.getConnection(url, utilisateur, motDePasse);
+			// Add parameters
+			accessDataBase = DriverManager.getConnection(urlBsd, userBsd, passwordBsd);
 		} catch (SQLException ex) {
 			Logger.getLogger(Connexion.class.getName()).log(Level.SEVERE, null, ex);
 		}
 	}
 
-
+	/**
+	 * Close connection with the data base
+	 */
 	public static void closeConnection() {
 		if (accessDataBase != null) {
 			try {

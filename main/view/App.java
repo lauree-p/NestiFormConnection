@@ -12,18 +12,22 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+import controller.Login;
+import controller.LoginImpl;
+import entity.User;
 import tool.ImagePanel;
 
 @SuppressWarnings("serial")
 public class App extends JFrame {
 
-	private AccountData panel_my_account_info;
-	private AccountDataUpdate panel_my_account_update;
+	private static AccountData panel_my_account_info;
+	private static AccountDataUpdate panel_my_account_update;
 	private ImagePanel panel_logo;
 	private JPanel panel_sidebar, panel_sidebar_hr, panel_title_app;
 	private JButton btn_sidebar_info, btn_sidebar_update, btn_title_disco;
 	private JLabel lbl_sidebar_my_account, lbl_title_my_account;
 	private FormLogin formLogin;
+	private static User userConnected;
 
 	/**
 	 * Create the frame.
@@ -83,7 +87,7 @@ public class App extends JFrame {
 		lbl_sidebar_my_account.setBounds(20, 186, 172, 26);
 		panel_sidebar.add(lbl_sidebar_my_account);
 
-		btn_sidebar_info = new JButton("Information détaillés");
+		btn_sidebar_info = new JButton("Informations détaillés");
 		btn_sidebar_info.setForeground(Color.WHITE);
 		btn_sidebar_info.setBackground(new Color(84, 62, 56));
 		btn_sidebar_info.setFont(new Font("Montserrat", Font.BOLD, 12));
@@ -110,6 +114,9 @@ public class App extends JFrame {
 
 		panel_my_account_update = new AccountDataUpdate();
 		getContentPane().add(panel_my_account_update);
+		
+		Login login = new LoginImpl();
+		userConnected = login.getUserConnected();
 
 		// Actions Listener
 
@@ -129,11 +136,12 @@ public class App extends JFrame {
 
 			public void actionPerformed(ActionEvent e) {
 
-				System.out.println("Clique sur information détaillé");
+				System.out.println("Clique sur informations détaillés");
 				panel_my_account_info.setVisible(true);
 				panel_my_account_update.setVisible(false);
 				btn_sidebar_info.setFont(new Font("Montserrat", Font.BOLD, 12));
 				btn_sidebar_update.setFont(new Font("Montserrat", Font.PLAIN, 12));
+				updateDataUser();
 
 			}
 		});
@@ -149,12 +157,16 @@ public class App extends JFrame {
 		});
 	}
 	
+	public void updateDataUser() {
+
+	}
+	
 	// Getters & Setters
 
 	/**
 	 * @return the panel_my_account_info
 	 */
-	public AccountData getPanel_my_account_info() {
+	public static AccountData getPanel_my_account_info() {
 		return panel_my_account_info;
 	}
 
@@ -162,13 +174,13 @@ public class App extends JFrame {
 	 * @param panel_my_account_info the panel_my_account_info to set
 	 */
 	public void setPanel_my_account_info(AccountData panel_my_account_info) {
-		this.panel_my_account_info = panel_my_account_info;
+		App.panel_my_account_info = panel_my_account_info;
 	}
 
 	/**
 	 * @return the panel_my_account_update
 	 */
-	public AccountDataUpdate getPanel_my_account_update() {
+	public static AccountDataUpdate getPanel_my_account_update() {
 		return panel_my_account_update;
 	}
 
@@ -176,7 +188,7 @@ public class App extends JFrame {
 	 * @param panel_my_account_update the panel_my_account_update to set
 	 */
 	public void setPanel_my_account_update(AccountDataUpdate panel_my_account_update) {
-		this.panel_my_account_update = panel_my_account_update;
+		App.panel_my_account_update = panel_my_account_update;
 	}
 
 	/**
@@ -191,6 +203,20 @@ public class App extends JFrame {
 	 */
 	public void setFormLogin(FormLogin formLogin) {
 		this.formLogin = formLogin;
+	}
+
+	/**
+	 * @return the userConnected
+	 */
+	public static User getUserConnected() {
+		return userConnected;
+	}
+
+	/**
+	 * @param userConnected the userConnected to set
+	 */
+	public static void setUserConnected(User userConnected) {
+		App.userConnected = userConnected;
 	}
 
 }
